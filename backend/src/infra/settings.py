@@ -1,4 +1,5 @@
 import enum
+import functools
 
 import pydantic_settings
 
@@ -16,6 +17,14 @@ class Settings(pydantic_settings.BaseSettings):
         extra="ignore",
     )
 
-    APP_TITLE: str = "Bees-In-Kube API"  # # отображается в автосгенерированных доках /docs
-
+    APP_TITLE: str = "Bees-In-Kube API"
     APP_ENV: AppEnv = AppEnv.DEVELOPMENT
+
+    RANCHER_API_TOKEN: str = "YOUR_API_TOKEN"
+    RANCHER_VERIFY_SSL: bool = True
+    RANCHER_TIMEOUT: float = 10.0
+
+
+@functools.lru_cache
+def get_settings() -> Settings:
+    return Settings()
