@@ -82,7 +82,7 @@ uv run uvicorn main:app --app-dir src --host 0.0.0.0 --port 8000
 - Легко тестируется без запущенного сервера.
 - Сервисы вызываются из `api/`; сами сервисы хендлеры не вызывают.
 
-### `infra/` — инфраструктура
+### `core/` — инфраструктура
 
 - Настройки приложения и всё, что связано с внешним окружением:
   конфигурация, подключение к БД, клиенты внешних сервисов, логирование.
@@ -98,7 +98,7 @@ uv run uvicorn main:app --app-dir src --host 0.0.0.0 --port 8000
 
 ## Конфигурация
 
-Настройки описаны в `src/infra/settings.py` и читаются из переменных
+Настройки описаны в `src/core` и читаются из переменных
 окружения или файла `.env` в папке `backend/`.
 
 | Переменная  | По умолчанию         | Описание                                      |
@@ -121,7 +121,7 @@ namespace-пакеты (PEP 420). `src/` — это корень импорто�
 
 ```python
 from api.router import api_router
-from infra.settings import Settings
+from core.settings import Settings
 from services.test_service import TestService
 ```
 
