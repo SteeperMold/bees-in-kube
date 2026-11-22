@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 
-from api import test_handler
+from api.endpoints import rancher, system
 
 api_router = APIRouter()
 
-api_router.include_router(test_handler.router)
+api_router.include_router(system.router)
+api_router.include_router(rancher.router)
