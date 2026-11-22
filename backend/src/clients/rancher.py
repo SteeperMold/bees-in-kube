@@ -1,21 +1,15 @@
 import httpx
 
+
 class RancherClient:
     def __init__(
-        self,
-        base_url: str,
-        api_token: str,
-        timeout: float = 10.0,
-        verify_ssl: bool = True
+        self, base_url: str, api_token: str, timeout: float = 10.0, verify_ssl: bool = True
     ) -> None:
         self._client = httpx.AsyncClient(
             base_url=base_url.rstrip("/"),
-            headers={
-                "Accept": "application/json",
-                "Authorization": f"Bearer {api_token}"
-            },
+            headers={"Accept": "application/json", "Authorization": f"Bearer {api_token}"},
             timeout=timeout,
-            verify=verify_ssl
+            verify=verify_ssl,
         )
 
     async def check_connection(self) -> bool:
