@@ -1,9 +1,5 @@
 import httpx
 
-from fastapi import APIRouter
-
-router = APIRouter()
-
 class RancherClient:
     def __init__(
         self,
