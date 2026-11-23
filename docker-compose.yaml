@@ -9,6 +9,20 @@ services:
     volumes:
       - rancher-data:/var/lib/rancher
     environment:
+      - CATTLE_BOOTSTRAP_PASSWORD=${RANCHER_BOOTSTRAP_PASSWORD}
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+volumes:
+  rancher-data:
       - CATTLE_BOOTSTRAP_PASSWORD=${RANCHER_BOOTSTRAP_PASSWORD:-local-dev-only-change-me}
     healthcheck:
       test: ["CMD-SHELL", "curl -fsk https://localhost/healthz || exit 1"]
