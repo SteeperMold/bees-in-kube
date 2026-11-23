@@ -3,6 +3,7 @@ services:
     image: rancher/rancher:v2.15.3
     container_name: rancher
     privileged: true
+    restart: unless-stopped
     ports:
       - "8443:443"
     volumes:
@@ -22,3 +23,40 @@ services:
 
 volumes:
   rancher-data:
+      - CATTLE_BOOTSTRAP_PASSWORD=${RANCHER_BOOTSTRAP_PASSWORD:-local-dev-only-change-me}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsk https://localhost/healthz || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 30
+      start_period: 90s
+      
+  rancher-init:
+    build: ./rancher_init
+    restart: "no"
+    environment:
+      - RANCHER_URL=https://rancher
+      - SERVER_EXTERNAL_URL=${SERVER_EXTERNAL_URL:-https://localhost:8443}
+      - CATTLE_BOOTSTRAP_PASSWORD=${RANCHER_BOOTSTRAP_PASSWORD:-local-dev-only-change-me}
+      - RANCHER_ADMIN_PASSWORD=${RANCHER_ADMIN_PASSWORD:-MyStrongAdminPassword123!}
+      - TOKEN_FILE_PATH=${TOKEN_FILE_PATH:-/shared/rancher_token.txt}
+    depends_on:
+      rancher:
+        condition: service_healthy
+    volumes:
+      - rancher_token:/shared
+    
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+
+volumes:
+  rancher-data:
+  rancher_token:  
