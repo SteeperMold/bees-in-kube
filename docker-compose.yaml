@@ -16,6 +16,7 @@ services:
       timeout: 5s
       retries: 30
       start_period: 90s
+      
   rancher-init:
     build: ./rancher_init
     restart: "no"
@@ -31,6 +32,17 @@ services:
     volumes:
       - rancher_token:/shared
     
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+
 volumes:
   rancher-data:
   rancher_token:  
