@@ -1,6 +1,6 @@
 services:
   rancher:
-    image: rancher/rancher:v2.9.3
+    image: rancher/rancher:v2.15.3
     container_name: rancher
     privileged: true
     ports:

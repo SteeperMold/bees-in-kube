@@ -1,0 +1,73 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "steepermold", email = "bkmz22092008@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.163.1",
+    "pydantic-settings>=2.16.3",
+]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.20",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+exclude = [
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "*_pb2.py",
+    "*_pb2_grpc.py",
+    "**/proto/**",
+]
+
+[tool.ruff.lint]
+select = [
+    "E", # pycodestyle errors
+    "W", # warnings
+    "F", # pyflakes
+    "I", # import sorting
+    "N", # naming
+    "B", # bugbear
+    "C4", # comprehensions
+    "UP", # pyupgrade
+    "SIM", # simplify
+    "RUF", # ruff-specific rules
+    "PL",
+]
+ignore = []
+
+# Для комментариев на русском
+allowed-confusables = [
+    "а", "в", "е", "з", "к", "м", "н", "о", "р", "с", "т", "у", "х",
+    "А", "В", "Е", "З", "К", "М", "Н", "О", "Р", "С", "Т", "У", "Х",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.uv]
+package = false
