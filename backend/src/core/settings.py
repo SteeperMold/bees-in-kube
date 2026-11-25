@@ -20,9 +20,9 @@ class Settings(pydantic_settings.BaseSettings):
     APP_TITLE: str = "Bees-In-Kube API"
     APP_ENV: AppEnv = AppEnv.DEVELOPMENT
 
-    RANCHER_BASE_URL: str = "https://example.com/"
+    RANCHER_BASE_URL: str = "https://localhost"
     RANCHER_API_TOKEN: str = "YOUR_API_TOKEN"
-    RANCHER_VERIFY_SSL: bool = True
+    RANCHER_VERIFY_SSL: bool = False
     RANCHER_TIMEOUT: float = 10.0
 
 
