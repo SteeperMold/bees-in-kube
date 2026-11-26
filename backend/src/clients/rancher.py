@@ -2,10 +2,10 @@ from typing import Any
 
 import httpx
 
+from clients.exceptions import RancherError
 from clients.models.namespace import Namespace, NamespaceCreate
 from clients.models.project import RancherProject, RancherProjectCreate
 
-from clients.exceptions import RancherError
 
 class RancherClient:
     def __init__(
@@ -62,7 +62,9 @@ class RancherClient:
         return self._parse_project_response(response)
 
     async def get_namespace(self, cluster_id: str, namespace_id: str) -> Namespace:
-        request = self._client.build_request("GET", f"v3/clusters/{cluster_id}/namespaces/{namespace_id}")
+        request = self._client.build_request(
+            "GET", f"v3/clusters/{cluster_id}/namespaces/{namespace_id}"
+        )
         response = await self.__exec_request(request)
         return self._parse_namespace_response(response)
 
@@ -81,13 +83,17 @@ class RancherClient:
         if labels:
             payload["labels"] = labels
 
-        request = self._client.build_request("POST", f"v3/clusters/{cluster_id}/namespaces", json=payload)
+        request = self._client.build_request(
+            "POST", f"v3/clusters/{cluster_id}/namespaces", json=payload
+        )
         response = await self.__exec_request(request)
 
         return self._parse_namespace_response(response)
 
     async def delete_namespace(self, cluster_id: str, namespace_id: str) -> Namespace:
-        request = self._client.build_request("DELETE", f"v3/clusters/{cluster_id}/namespaces/{namespace_id}")
+        request = self._client.build_request(
+            "DELETE", f"v3/clusters/{cluster_id}/namespaces/{namespace_id}"
+        )
         response = await self.__exec_request(request)
         return self._parse_namespace_response(response)
 
@@ -129,9 +135,9 @@ class RancherClient:
         try:
             response = await self._client.send(request)
         except httpx.HTTPError as e:
-            raise RancherError(f"Не удалось выполнить запрос к Rancher API: {e}")
+            raise RancherError(f"Не удалось выполнить запрос к Rancher API: {e}") from e
 
         if not response.is_success:
-            raise RancherError(self._extract_error(response), response.status_code)
+            raise RancherError(self._extract_error(response), response.status_code) from None
 
         return response
