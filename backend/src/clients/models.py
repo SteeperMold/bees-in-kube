@@ -1,4 +1,4 @@
-from typing import Any, NotRequired, TypedDict
+from typing import Any, Literal, NotRequired, TypedDict
 
 
 class RancherProjectBase(TypedDict):
@@ -14,4 +14,5 @@ class RancherProjectCreate(RancherProjectBase):
 
 class RancherProject(RancherProjectBase):
     id: str
-    state: str
+    state: Literal["active", "provisioning", "updating", "removing"]
+    transitioning: Literal["yes", "no", "error"]
