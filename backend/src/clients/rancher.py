@@ -1,9 +1,17 @@
+from typing import Any
+
 import httpx
 
+from clients.models import RancherProject, RancherProjectCreate
+from clients.exceptions import RancherError
 
 class RancherClient:
     def __init__(
-        self, base_url: str, api_token: str, timeout: float = 10.0, verify_ssl: bool = True
+        self,
+        base_url: str,
+        api_token: str,
+        timeout: float = 10.0,
+        verify_ssl: bool = True
     ) -> None:
         self._client = httpx.AsyncClient(
             base_url=base_url.rstrip("/"),
@@ -22,3 +30,40 @@ class RancherClient:
 
     async def close(self) -> None:
         await self._client.aclose()
+
+    async def create_project(
+        self,
+        cluster_id: str,
+        name: str,
+        description: str | None = None,
+        labels: dict[str, Any] | None = None
+    ) -> RancherProject:
+        payload: RancherProjectCreate = {
+            "clusterId": cluster_id,
+            "name": name,
+        }
+
+        if description:
+            payload["description"] = description
+
+        if labels:
+            payload["labels"] = labels
+
+        try:
+            response = await self._client.post("/v3/projects", json=payload)
+        except httpx.HTTPError as e:
+            raise RancherError(f"Не удалось выполнить запрос к Rancher API: {e}")
+
+        if not response.is_success:
+            raise RancherError(self._extract_error(response), response.status_code)
+
+        return response.json()
+
+    @staticmethod
+    def _extract_error(response: httpx.Response) -> str:
+        try:
+            message = response.json().get("message")
+        except ValueError:
+            message = None
+
+        return f"Rancher API Error: {message or response.text}"
