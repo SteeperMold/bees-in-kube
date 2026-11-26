@@ -1,8 +1,10 @@
 import httpx
 
 from clients.exceptions import RancherError
+
 from clients.models.namespace import Namespace, NamespaceCreate
 from clients.models.project import RancherProject, RancherProjectCreate
+from clients.models.user import User, UserCreate
 
 
 class RancherClient:
@@ -107,6 +109,31 @@ class RancherClient:
         response = await self.__exec_request(request)
 
         return Namespace.model_validate_json(response.content)
+
+    async def create_user(
+        self,
+        username: str,
+        password: str,
+        must_change_password: bool,
+        enabled: bool
+    ) -> User:
+        payload = UserCreate(
+            name=username,
+            username=username,
+            password=password,
+            must_change_password=must_change_password,
+            enabled=enabled
+        )
+
+        request = self._client.build_request(
+            method="POST",
+            url="/v3/users",
+            json=payload.model_dump(by_alias=True)
+        )
+
+        response = await self.__exec_request(request)
+
+        return User.model_validate_json(response.content)
 
     @staticmethod
     def _extract_error(response: httpx.Response) -> str:
