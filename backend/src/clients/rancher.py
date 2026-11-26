@@ -81,6 +81,11 @@ class RancherClient:
 
         return response.json()
 
+    async def delete_namespace(self, cluster_id: str, namespace_id: str) -> Namespace:
+        request = self._client.build_request("DELETE", f"v3/clusters/{cluster_id}/namespaces/{namespace_id}")
+        response = await self.__exec_request(request)
+        return response.json()
+
     @staticmethod
     def _extract_error(response: httpx.Response) -> str:
         try:
