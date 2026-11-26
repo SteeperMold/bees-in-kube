@@ -61,6 +61,11 @@ class RancherClient:
         response = await self.__exec_request(request)
         return response.json()
 
+    async def get_namespace(self, cluster_id: str, namespace_id: str) -> Namespace:
+        request = self._client.build_request("GET", f"v3/clusters/{cluster_id}/namespaces/{namespace_id}")
+        response = await self.__exec_request(request)
+        return response.json()
+
     async def create_namespace(
         self,
         cluster_id: str,
