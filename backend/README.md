@@ -75,6 +75,7 @@ uv run uvicorn main:app --app-dir src --host 0.0.0.0 --port 8000
 
 - Используются в хендлерах для обращения к сторонним сервисам.
 - Для реализации используется `httpx` (Нет связи с `FastAPI`).
+- Предоставляет публичные типизированные модели и ошибки ответов запросов к сервисам
 
 ### `services/` — бизнес-логика
 
@@ -107,7 +108,7 @@ uv run uvicorn main:app --app-dir src --host 0.0.0.0 --port 8000
 | ----------- | -------------------- | --------------------------------------------- |
 | `APP_TITLE` | `Bees-In-Kube API`   | Заголовок приложения в `/docs`                |
 | `APP_ENV`   | `development`        | Окружение: `development`, `production`, `test` |
-| `RANCHER_BASE_URL | Отсутствует| URL, на котором развернут Rancher|
+| `RANCHER_BASE_URL` | Отсутствует| URL, на котором развернут Rancher|
 | `RANCHER_API_TOKEN`| Отсутствует| API-токен для подключения к Rancher API|
 | `RANCHER_VERIFY_SSL` | `true` | Проверка SSL сертификата при подключении к Rancher API |
 | `RANCHER_TIMEOUT` | `10.0` | Тайм-аут до момента, когда попытка подключения будет прервана |
