@@ -2,6 +2,7 @@ import httpx
 
 from clients.exceptions import RancherError
 
+from clients.models.kubeconfig import Kubeconfig
 from clients.models.namespace import Namespace, NamespaceCreate
 from clients.models.project import RancherProject, RancherProjectCreate
 from clients.models.user import User, UserCreate
@@ -134,6 +135,18 @@ class RancherClient:
         response = await self.__exec_request(request)
 
         return User.model_validate_json(response.content)
+
+    async def generate_kubeconfig(self, cluster_id: str, user_token: str) -> Kubeconfig:
+        request = self._client.build_request(
+            method="POST",
+            url=f"/v3/clusters/${cluster_id}",
+            headers={"Accept": "application/json", "Authorization": f"Bearer ${user_token}"},
+            params={"action": "generateKubeconfig"}
+        )
+
+        response = await self.__exec_request(request)
+
+        return Kubeconfig.model_validate_json(response.content)
 
     @staticmethod
     def _extract_error(response: httpx.Response) -> str:
