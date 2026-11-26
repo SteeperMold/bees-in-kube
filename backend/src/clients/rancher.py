@@ -2,7 +2,9 @@ from typing import Any
 
 import httpx
 
-from clients.models import RancherProject, RancherProjectCreate
+from clients.models.namespace import Namespace, NamespaceCreate
+from clients.models.project import RancherProject, RancherProjectCreate
+
 from clients.exceptions import RancherError
 
 class RancherClient:
@@ -57,6 +59,26 @@ class RancherClient:
     async def delete_project(self, project_id: str) -> RancherProject:
         request = self._client.build_request("DELETE", f"v3/projects/{project_id}")
         response = await self.__exec_request(request)
+        return response.json()
+
+    async def create_namespace(
+        self,
+        cluster_id: str,
+        name: str,
+        project_id: str,
+        labels: dict[str, Any] | None = None
+    ) -> Namespace:
+        payload: NamespaceCreate = {
+            "projectId": project_id,
+            "name": name
+        }
+
+        if labels:
+            payload["labels"] = labels
+
+        request = self._client.build_request("POST", f"v3/clusters/{cluster_id}/namespaces", json=payload)
+        response = await self.__exec_request(request)
+
         return response.json()
 
     @staticmethod
