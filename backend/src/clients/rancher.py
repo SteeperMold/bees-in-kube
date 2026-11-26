@@ -49,14 +49,14 @@ class RancherClient:
         if labels:
             payload["labels"] = labels
 
-        try:
-            response = await self._client.post("/v3/projects", json=payload)
-        except httpx.HTTPError as e:
-            raise RancherError(f"Не удалось выполнить запрос к Rancher API: {e}")
+        request = self._client.build_request("POST", "v3/projects", json=payload)
+        response = await self.__exec_request(request)
 
-        if not response.is_success:
-            raise RancherError(self._extract_error(response), response.status_code)
+        return response.json()
 
+    async def delete_project(self, project_id: str) -> RancherProject:
+        request = self._client.build_request("DELETE", f"v3/projects/{project_id}")
+        response = await self.__exec_request(request)
         return response.json()
 
     @staticmethod
@@ -67,3 +67,14 @@ class RancherClient:
             message = None
 
         return f"Rancher API Error: {message or response.text}"
+
+    async def __exec_request(self, request: httpx.Request) -> httpx.Response:
+        try:
+            response = await self._client.send(request)
+        except httpx.HTTPError as e:
+            raise RancherError(f"Не удалось выполнить запрос к Rancher API: {e}")
+
+        if not response.is_success:
+            raise RancherError(self._extract_error(response), response.status_code)
+
+        return response
