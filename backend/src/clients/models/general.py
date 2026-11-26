@@ -1,15 +1,17 @@
-from typing import Any, Literal, NotRequired, TypedDict
+from typing import Literal
 
-LifecycleState = Literal["active", "provisioning", "updating", "removing"]
-TransitionState = Literal["yes", "no", "error"]
+from pydantic import BaseModel, ConfigDict, Field
+from pydantic.alias_generators import to_camel
 
 
-class ResourceBase(TypedDict):
+class ResourceBase(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
     name: str
-    description: NotRequired[str]
-    labels: NotRequired[dict[str, Any]]
+    description: str | None = Field(default=None)
+    labels: dict[str, str] = Field(default_factory=dict)
 
 
-class ResourceStates(TypedDict):
-    state: LifecycleState
-    transitioning: TransitionState
+class ResourceStates(BaseModel):
+    state: Literal["active", "provisioning", "updating", "removing"]
+    transitioning: Literal["yes", "no", "error"]

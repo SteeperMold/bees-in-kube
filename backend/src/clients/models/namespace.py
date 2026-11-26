@@ -2,7 +2,7 @@ from clients.models.general import ResourceBase, ResourceStates
 
 
 class NamespaceBase(ResourceBase):
-    projectId: str
+    project_id: str
 
 
 class NamespaceCreate(NamespaceBase):

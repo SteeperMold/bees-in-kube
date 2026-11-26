@@ -2,7 +2,7 @@ from clients.models.general import ResourceBase, ResourceStates
 
 
 class RancherProjectBase(ResourceBase):
-    clusterId: str
+    cluster_id: str
 
 
 class RancherProjectCreate(RancherProjectBase):

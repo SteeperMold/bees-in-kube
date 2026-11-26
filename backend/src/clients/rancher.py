@@ -1,5 +1,3 @@
-from typing import Any
-
 import httpx
 
 from clients.exceptions import RancherError
@@ -38,64 +36,77 @@ class RancherClient:
         cluster_id: str,
         name: str,
         description: str | None = None,
-        labels: dict[str, Any] | None = None
+        labels: dict[str, str] | None = None
     ) -> RancherProject:
-        payload: RancherProjectCreate = {
-            "clusterId": cluster_id,
-            "name": name,
-        }
+        payload = RancherProjectCreate(
+            cluster_id=cluster_id,
+            name=name,
+            description=description,
+            labels=labels or {}
+        )
 
-        if description:
-            payload["description"] = description
+        request = self._client.build_request(
+            method="POST",
+            url="v3/projects",
+            json=payload.model_dump(by_alias=True)
+        )
 
-        if labels:
-            payload["labels"] = labels
-
-        request = self._client.build_request("POST", "v3/projects", json=payload)
         response = await self.__exec_request(request)
 
-        return self._parse_project_response(response)
+        return RancherProject.model_validate_json(response.content)
 
     async def delete_project(self, project_id: str) -> RancherProject:
-        request = self._client.build_request("DELETE", f"v3/projects/{project_id}")
+        request = self._client.build_request(
+            method="DELETE",
+            url=f"v3/projects/{project_id}"
+        )
+
         response = await self.__exec_request(request)
-        return self._parse_project_response(response)
+
+        return RancherProject.model_validate_json(response.content)
 
     async def get_namespace(self, cluster_id: str, namespace_id: str) -> Namespace:
         request = self._client.build_request(
-            "GET", f"v3/clusters/{cluster_id}/namespaces/{namespace_id}"
+            method="GET",
+            url=f"v3/clusters/{cluster_id}/namespaces/{namespace_id}"
         )
+
         response = await self.__exec_request(request)
-        return self._parse_namespace_response(response)
+
+        return Namespace.model_validate_json(response.content)
 
     async def create_namespace(
         self,
         cluster_id: str,
         name: str,
         project_id: str,
-        labels: dict[str, Any] | None = None
+        labels: dict[str, str] | None = None
     ) -> Namespace:
-        payload: NamespaceCreate = {
-            "projectId": project_id,
-            "name": name
-        }
-
-        if labels:
-            payload["labels"] = labels
+        payload = NamespaceCreate(
+            project_id=project_id,
+            name=name,
+            labels=labels or {}
+        )
 
         request = self._client.build_request(
-            "POST", f"v3/clusters/{cluster_id}/namespaces", json=payload
+            method="POST",
+            url=f"v3/clusters/{cluster_id}/namespaces",
+            json=payload.model_dump(by_alias=True)
         )
+
         response = await self.__exec_request(request)
 
-        return self._parse_namespace_response(response)
+        return Namespace.model_validate_json(response.content)
 
     async def delete_namespace(self, cluster_id: str, namespace_id: str) -> Namespace:
         request = self._client.build_request(
-            "DELETE", f"v3/clusters/{cluster_id}/namespaces/{namespace_id}"
+            method="DELETE",
+            url=f"v3/clusters/{cluster_id}/namespaces/{namespace_id}"
         )
+
         response = await self.__exec_request(request)
-        return self._parse_namespace_response(response)
+
+        return Namespace.model_validate_json(response.content)
 
     @staticmethod
     def _extract_error(response: httpx.Response) -> str:
@@ -105,31 +116,6 @@ class RancherClient:
             message = None
 
         return f"Rancher API Error: {message or response.text}"
-
-    @staticmethod
-    def _parse_project_response(response: httpx.Response) -> RancherProject:
-        data = response.json()
-        return {
-            "id": data.get("id"),
-            "clusterId": data.get("clusterId"),
-            "name": data.get("name"),
-            "description": data.get("description", ""),
-            "labels": data.get("labels", []),
-            "state": data.get("state"),
-            "transitioning": data.get("transitioning")
-        }
-
-    @staticmethod
-    def _parse_namespace_response(response: httpx.Response) -> Namespace:
-        data = response.json()
-        return {
-            "id": data.get("id"),
-            "projectId": data.get("projectId"),
-            "name": data.get("name"),
-            "labels": data.get("labels", []),
-            "state": data.get("state"),
-            "transitioning": data.get("transitioning")
-        }
 
     async def __exec_request(self, request: httpx.Request) -> httpx.Response:
         try:
