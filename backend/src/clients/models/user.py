@@ -1,6 +1,6 @@
 from pydantic import Field
 
-from clients.models.general import ResourceBase, ResourceStates
+from clients.models.general import ResourceBase
 
 
 class UserBase(ResourceBase):

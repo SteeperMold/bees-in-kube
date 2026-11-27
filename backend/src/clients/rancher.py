@@ -1,7 +1,8 @@
+import http
+
 import httpx
 
 from clients.exceptions import RancherError
-
 from clients.models.kubeconfig import Kubeconfig
 from clients.models.namespace import Namespace, NamespaceCreate
 from clients.models.project import RancherProject, RancherProjectCreate
@@ -49,22 +50,22 @@ class RancherClient:
         )
 
         request = self._client.build_request(
-            method="POST",
+            method=http.HTTPMethod.POST,
             url="v3/projects",
             json=payload.model_dump(by_alias=True)
         )
 
-        response = await self.__exec_request(request)
+        response = await self._exec_request(request)
 
         return RancherProject.model_validate_json(response.content)
 
     async def delete_project(self, project_id: str) -> RancherProject:
         request = self._client.build_request(
-            method="DELETE",
+            method=http.HTTPMethod.DELETE,
             url=f"v3/projects/{project_id}"
         )
 
-        response = await self.__exec_request(request)
+        response = await self._exec_request(request)
 
         return RancherProject.model_validate_json(response.content)
 
@@ -74,7 +75,7 @@ class RancherClient:
             url=f"v3/clusters/{cluster_id}/namespaces/{namespace_id}"
         )
 
-        response = await self.__exec_request(request)
+        response = await self._exec_request(request)
 
         return Namespace.model_validate_json(response.content)
 
@@ -92,22 +93,22 @@ class RancherClient:
         )
 
         request = self._client.build_request(
-            method="POST",
+            method=http.HTTPMethod.POST,
             url=f"v3/clusters/{cluster_id}/namespaces",
             json=payload.model_dump(by_alias=True)
         )
 
-        response = await self.__exec_request(request)
+        response = await self._exec_request(request)
 
         return Namespace.model_validate_json(response.content)
 
     async def delete_namespace(self, cluster_id: str, namespace_id: str) -> Namespace:
         request = self._client.build_request(
-            method="DELETE",
+            method=http.HTTPMethod.DELETE,
             url=f"v3/clusters/{cluster_id}/namespaces/{namespace_id}"
         )
 
-        response = await self.__exec_request(request)
+        response = await self._exec_request(request)
 
         return Namespace.model_validate_json(response.content)
 
@@ -127,24 +128,24 @@ class RancherClient:
         )
 
         request = self._client.build_request(
-            method="POST",
+            method=http.HTTPMethod.POST,
             url="/v3/users",
             json=payload.model_dump(by_alias=True)
         )
 
-        response = await self.__exec_request(request)
+        response = await self._exec_request(request)
 
         return User.model_validate_json(response.content)
 
     async def generate_kubeconfig(self, cluster_id: str, user_token: str) -> Kubeconfig:
         request = self._client.build_request(
-            method="POST",
-            url=f"/v3/clusters/${cluster_id}",
-            headers={"Accept": "application/json", "Authorization": f"Bearer ${user_token}"},
+            method=http.HTTPMethod.POST,
+            url=f"/v3/clusters/{cluster_id}",
+            headers={"Accept": "application/json", "Authorization": f"Bearer {user_token}"},
             params={"action": "generateKubeconfig"}
         )
 
-        response = await self.__exec_request(request)
+        response = await self._exec_request(request)
 
         return Kubeconfig.model_validate_json(response.content)
 
@@ -157,7 +158,7 @@ class RancherClient:
 
         return f"Rancher API Error: {message or response.text}"
 
-    async def __exec_request(self, request: httpx.Request) -> httpx.Response:
+    async def _exec_request(self, request: httpx.Request) -> httpx.Response:
         try:
             response = await self._client.send(request)
         except httpx.HTTPError as e:
